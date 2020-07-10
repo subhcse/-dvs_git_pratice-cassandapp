@@ -1,0 +1,21 @@
+def_collection = []
+pipeline {
+   agent  {label 'kuberenetes-master'}
+      stages
+        { 
+          stage ('cassandapp')
+             steps
+             sh 'cd /cassandapp/deploy/*>cassandra_app.ymal'
+             git credentialid: 'kuberenetes-master',url:"$(params.Gitrepo)"
+             script {
+             if("$(params.deployment)" == 'cassandapp' 
+                sh 'kubectl create -f cassandra_app.ymal'
+             elif
+               ("$(params.deployment)" != 'cassandapp'
+                sh 'ping'      
+                     }
+             sh 'cd /jenkins/workspace/kuberenetes-master/*>>app.log'
+          }
+}
+
+

@@ -1,0 +1,129 @@
+kind: Service 
+
+metadata: 
+
+  name: cassandra_service 
+
+  labels: 
+
+    name: cassandra_service 
+
+spec: 
+
+  ports: 
+
+    - nodePort: 30163  
+
+      port: 8080       
+
+      targetPort: 8080   
+
+      protocol: TCP 
+
+  selector:            
+
+    app: cassandapp 
+
+  type: NodePort        
+
+  
+
+--- 
+
+apiVersion: v1  
+
+kind: Deployment     
+
+metadata:               
+
+  name: cassandra_deploy 
+
+spec: 
+
+selector:          
+
+    matchLabels: 
+
+      app: cassandapp 
+
+  replicas: 3 
+
+  template: 
+
+    metadata: 
+
+      labels:         
+
+        app: cassandapp 
+
+    spec:   
+
+       containers: 
+
+        - image: cassandra:3 
+
+          name: kubecont-cassand 
+
+          imagePullPolicy: IfNotPresent 
+
+          ports: 
+
+            - containerPort: 7000 
+
+              name: intra-node 
+
+            - containerPort: 7001 
+
+              name: tls-intra-node 
+
+            - containerPort: 7199 
+
+              name: jmx 
+
+            - containerPort: 9042 
+
+              name: cql 
+
+          env: 
+
+            - name: CASSANDRA_SEEDS 
+
+              value: cassandra-0.cassandra.default.svc.cluster.local 
+
+            - name: MAX_HEAP_SIZE 
+
+              value: 256M 
+
+            - name: HEAP_NEWSIZE 
+
+              value: 100M 
+
+            - name: CASSANDRA_CLUSTER_NAME 
+
+              value: "Cassandra" 
+
+            - name: CASSANDRA_DC 
+
+              value: "DC1" 
+
+            - name: CASSANDRA_RACK 
+
+              value: "Rack1" 
+
+            - name: CASSANDRA_ENDPOINT_SNITCH 
+
+              value: GossipingPropertyFileSnitch 
+
+          volumeMounts: 
+
+            - name: cassandra-data 
+
+              mountPath: /var/lib/cassandra/data 
+
+        volumes: 
+
+           - name: config-volume 
+
+          configMap: 
+
+              name: rails-app 
